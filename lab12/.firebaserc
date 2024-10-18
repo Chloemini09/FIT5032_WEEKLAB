@@ -1,0 +1,9 @@
+{
+  "projects": {
+    "default": "week7-jxy",
+    "prod": "fit5032-a2-8cff6"
+  },
+  "targets": {},
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}
