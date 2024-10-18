@@ -1,0 +1,238 @@
+Studio: Optimization & CI / CD
+工作室：优化 & CI / CD
+Overview: Assessed Lab 概述：评估实验室
+, slide completed
+12.1 CI/CD with GitHub Actions concept
+12.1 使用 GitHub Actions 概念的 CI/CD
+, slide completed
+12.2 Deploying Vue.js Apps to GitHub Pages with CI/CD
+12.2 使用 CI/CD 将 Vue.js 应用程序部署到 GitHub Pages
+, slide completed
+12.3 Optimisation for web project
+12.3 优化 Web 项目
+Use left and right arrow keys to adjust the split region size
+12.2 Deploying Vue.js Apps to GitHub Pages with CI/CD
+12.2 使用 CI/CD 将 Vue.js 应用程序部署到 GitHub Pages
+0. Please complete your SETU (Sorry for reminder again)
+0. 请完成您的 SETU （抱歉再次提醒）
+Before we begin the setup, please complete the SETU
+在我们开始设置之前，请完成 SETU
+
+The teaching team has spent a lot of hours renewing the unit from the outdated Asp.net MVC framework (6 Years old without big changes) to the modern framework like Vue.js. (Most of the lab material is created by me - Yiwei 6 years ago, so I know 😊 )
+教学团队花费了大量时间将单元从过时的 Asp.net MVC 框架（6 年前没有大改动）更新到像 Vue.js 这样的现代框架。（大部分实验资料都是我自己创作的 - 艺薇 6 年前，所以我知道😊）
+
+We hope we can continue to give the latest up-to-date knowledge to you. And in order to do that, completing SETU is very important.
+我们希望我们能继续为您提供最新的知识。为了做到这一点，完成 SETU 非常重要。
+
+Appreciate your help. 感谢您的帮助。
+
+And all the best with your interview or future studies
+祝您的面试或未来学习一切顺利
+
+Link to SETU is https://monash.bluera.com/monash/
+链接到 SETU 是 https://monash.bluera.com/monash/
+
+Or you can scan the QR code:
+或者您可以扫描二维码：
+
+
+
+12.1 Introduction & Prerequisites
+12.1 介绍和先决条件
+This guide will walk you through the process of deploying a Vue.js application to GitHub Pages and setting up a Continuous Integration/Continuous Deployment (CI/CD) pipeline using GitHub Actions. This approach is particularly relevant as it demonstrates practical application of web development and DevOps concepts.
+本指南将引导您完成将 Vue.js 应用程序部署到 GitHub Pages 并使用 GitHub Actions 设置持续集成/持续部署 （CI/CD） 管道的过程。这种方法特别相关，因为它展示了 Web 开发和 DevOps 概念的实际应用。
+
+Prerequisites 先决条件
+A Vue.js 3 project created with Vue CLI or Vite (Which you have done since beginning of semester)
+使用 Vue CLI 或 Vite 创建的 Vue.js 3 项目（你从学期开始就完成了）
+
+A GitHub account 一个 GitHub 帐户
+
+Git installed on your local machine
+本地计算机上安装的 Git
+
+12.2 Steps for setting up CI & CD
+12.2 设置CI和CD的步骤
+1. Prepare Your Vue.js Project
+1. 准备你的 Vue.js 项目
+
+Ensure your project is using a router in history mode. In your router/index.js file:
+确保您的项目正在使用处于历史模式的路由器。在您的 router/index.js 文件中：
+
+The history mode uses the browser’s history API to create cleaner URLs without the hash # symbol, normally if Vue Router is managing the URL, the url can look like http://example.com/#/about, but with history enabled, you can have routing like http://example.com/about 
+历史模式使用浏览器的历史 API 来创建没有哈希 # 符号的更干净的 URL，通常如果 Vue Router 正在管理 URL，url 可能看起来像 http://example.com/#/about，但启用历史后，你可以像 http://example.com/about 一样进行路由
+
+The BASE_URL is typically used to define the root path for your application, e.g. if your website is deployed at the root of your domain, then BASE_URL will be /. However if you created a folder called "Yiwei" and deploy your project within the folder, your base_URL will be /Yiwei/, details will be from official website, https://cli.vuejs.org/guide/mode-and-env.html#environment-variables 
+BASE_URL通常用于定义应用程序的根路径，例如，如果您的网站部署在域的根目录中，则BASE_URL将为 /。但是，如果您创建了一个名为 “Yiwei” 的文件夹并在该文件夹中部署了您的项目，则您的base_URL将是 /Yiwei/，详细信息将来自官方网站，https://cli.vuejs.org/guide/mode-and-env.html#environment-variables
+
+import { createRouter, createWebHistory } from 'vue-router'
+
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
+  routes: [
+    // your routes here
+  ]
+})
+
+import { createRouter， createWebHistory } from 'vue-router' const router = createRouter（{
+历史记录： createWebHistory（process.环境。BASE_URL）、
+路线： [
+ 您的路线
+  ]
+})
+
+2. Create a vue.config.js file in the root of your project (if it doesn't exist) and add:
+2. 在项目的根目录中创建一个 vue.config.js 文件（如果不存在）并添加：
+
+The following configuration enables your project to be change according to different model, ,so in normal development model, The base URL will be /, so your app will be accessible at http://localhost:XXX/. However, when change to production model, then your project will be accessible by visiting http://example.com/repository-name/
+以下配置使您的项目可以根据不同的模型进行更改，因此在正常的开发模型中，基本 URL 将为 /，因此您的 App 可以在 http：//localhost：XXX/ 访问。但是，当更改为生产模型时，您的项目将可以通过访问 http://example.com/repository-name/ 
+
+module.exports = {
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/<repository-name>/'
+    : '/'
+}
+
+模块。导出 = {
+publicPath： 进程。环境。NODE_ENV === '生产'
+?'/<存储库名称>/'
+： '/'
+}
+Replace <repository-name> with your GitHub repository name.
+将 <repository-name> 替换为您的 GitHub 存储库名称。
+
+Step 3 and step 4 is for new project, if you already have Git repo, you can skip this, this is kept here so that you can still follow the step in the future if you are creating a new project
+第 3 步和第 4 步适用于新项目，如果您已经有 Git 存储库，则可以跳过此步骤，这将保留在此处，以便将来创建新项目时仍可以按照该步骤进行操作
+
+3. Create a GitHub Repository (This step is optional if you already have Git repo)
+3. 创建 GitHub 存储库（如果您已经有 Git 存储库，则此步骤是可选的）
+
+Go to GitHub and create a new repository.
+转到 GitHub 并创建一个新存储库。
+
+If your project is not able to be deployed, you might need to try to set your project to public repository instead. Otherwise, proceed with the following steps
+如果您的项目无法部署，您可能需要尝试将项目设置为 public repository。否则，请继续执行以下步骤
+
+4. Push Your Project to GitHub
+4. 将您的项目推送到 GitHub
+
+Initialize Git in your project folder (if not already done):
+在项目文件夹中初始化 Git（如果尚未完成）：
+
+git init
+ git 初始化
+Add your files and commit:
+添加您的文件并提交：
+
+git add .
+git commit -m "Initial commit"
+
+git add 的 .
+git commit -m “初始提交”
+Add your GitHub repository as a remote and push:
+将您的 GitHub 存储库添加为远程仓库并推送：
+
+git remote add origin https://github.com/<username>/<repository-name>.git
+git branch -M main
+git push -u origin main
+
+git remote add origin https://github.com/<用户名>/<repository-name>.git
+git branch -M 主
+git push -u origin main
+5. Set Up GitHub Actions for CI/CD
+5. 为 CI/CD 设置 GitHub Actions
+
+In case you do not know about Github Action (https://github.com/features/actions), it is a platform for continuous integration (CI) and continuous delivery (CD)
+如果您不知道 Github Action （https://github.com/features/actions），它是一个持续集成 （CI） 和持续交付 （CD） 的平台
+
+.yml file are called YAML files, which is usually a txt file that is commonly used for configurations , file structure is the code provided below
+.yml文件都叫做 YAML 文件，通常是常用的 txt 文件，文件结构是下面提供的代码
+
+In your project root, create a .github/workflows directory.
+在项目根目录中，创建一个 .github/workflows 目录。
+
+Inside this directory, create a file named deploy.yml.
+在此目录中，创建一个名为 deploy.yml 的文件。
+
+Add the following content to deploy.yml:
+将以下内容添加到 deploy.yml：
+
+ The checkout step  refers to the process of retrieving the code from your GitHub repository and making it available in the workflow’s environment
+checkout 步骤是指从 GitHub 存储库中检索代码并使其在工作流环境中可用的过程
+
+This workflow will automatically build and deploy your Vue.js app to GitHub Pages whenever you push changes to the main branch.
+每当您将更改推送到 main 分支时，此工作流程都会自动构建 Vue.js 应用程序并将其部署到 GitHub Pages。
+
+6. Enable GitHub Pages 6. 启用 GitHub Pages
+
+Go to your repository on GitHub.
+转到 GitHub 上的存储库。
+
+Click on "Settings" > "Pages".
+点击“设置”>“页面”。
+
+Under "Source", select the gh-pages branch.
+在“Source（源）”下，选择 gh-pages 分支。
+
+Click "Save". 点击“保存”。
+
+Step 6: Trigger the Deployment
+第 6 步：触发部署
+Make a small change to your project.
+对项目进行小改动。
+
+Commit and push the change: 
+提交并推送更改：
+
+Please note the following is git command for commit and push, you can use your visual studio code to do it 
+请注意，以下是用于提交和推送的 git 命令，您可以使用您的 Visual Studio 代码来完成
+
+git add .
+git commit -m "Trigger deployment"
+git push
+
+git add 的 .
+git commit -m “触发部署”
+git 推送
+Go to your repository on GitHub, click on the "Actions" tab, and you should see your workflow running.
+转到 GitHub 上的存储库，单击“操作”选项卡，您应该会看到您的工作流程正在运行。
+
+Step 7: Access Your Deployed Application
+第 7 步：访问已部署的应用程序
+Once the workflow completes successfully, your app will be available at: https://<username>.github.io/<repository-name>/
+工作流成功完成后，您的应用将在以下位置提供： https://<username>.github.io/<repository-name>/ 
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@4.1.4
+      with:
+        branch: gh-pages
+        folder: dist
+
+permissions:
+  contents: write
